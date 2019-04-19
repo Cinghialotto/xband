@@ -1,0 +1,163 @@
+*********************************************************************************************
+Set Box Serial - msSetBoxSerialNumber -[ TESTED 100% ]
+10 42947672 42947672
+Opcode + Region + Serial
+
+*********************************************************************************************
+Set Box HomeTown - msSetBoxHometown - [TESTED 100%]
+38 5465737420546f776e 00000000000000000000000000000000000000000000000000
+Opcode + 34 EXACT! Bytes padded (Hometown then padded out with Zeroes)
+
+*********************************************************************************************
+Set Current Username - msSetCurrentUserName - [TESTED 100%]
+36 74657374757365723031 000000000000000000000000000000000000000000000000
+Opcode + 34 EXACT! Bytes padded (New username then padded out with Zeroes)
+
+*********************************************************************************************
+Set Dial Up Numbers - msSetLocalAccessPhoneNumber - [TESTED 100%]
+2C 00 00 3135313235353534343434 00000000000000000000000000 05 00 3135313235353534343434 00000000000000000000000000 0100
+Opcode + DBID + Padding + Phone Number 24 Bytes Padded   - Opcode + DBID + Padding + Phone Number 24 Bytes Padded + Flags
+
+*********************************************************************************************
+Set Box Phone Number - msSetBoxPhoneNumber - [TESTED 100%]
+2B 00 00 35313238363735333039 0000000000000000000000000000
+Must follow Set Dialup Numbers packet *** Sample packet is probably slightly screwy with number format
+
+*********************************************************************************************
+Register Player - msRegisterPlayer - [TESTED 100%]
+0E 01000000
+Opcode + Wait Time
+
+*********************************************************************************************
+Call Opponent - msOpponentPhoneNumber - [TESTED 100%]
+1D 00 00 353132383637353330390000000000000000000000000000 00000000
+Opcode + Padding + ScriptID + Phone Number + Opponent Verification Tag (As Long)
+
+*********************************************************************************************
+Date / Time Stamp - msSetDateAndTime - [NEEDS TESTING]
+04 000059C3 000031DC02
+Opcode + Date (Long) + Time (Long)
+This is probably the same format as the player list date format and xmail
+
+*********************************************************************************************
+NGP List - msNewNGPList - [TESTED 100%]
+0F 0010 0001 0009 C4CDDF0C 00000000 00000003 0010 4D6F7274616C204B6F6D626174203200
+Opcode + Length up to next length (Short) + Count (Short) + Version of list (Short) + GameID (Long) + Gameflags (Long) + Patch Version (Long) + Length of Game Title (Short) + Game Title (Hex String)
+
+*********************************************************************************************
+Clear Send Queue - msClearSendQ	- [TESTED 100%]
+17
+Opcode only
+Tells box you've put everything in the database. So stop sending it to us!!
+
+*********************************************************************************************
+Add player to Player list - msAddAddressBookEntry -[IN PROGRESS - NEEDS PROFILE INFO STILL]
+23 00 0059 0000000000000000 00 00 02 546573746c6f63000000000000000000000000000000000000000000000000000000    
+546573746c6f6300000000000000000000000000000000000000000000000000000000 00118BA0 0001 0001 00
+OPCODE + DBID + LENGTH + REGION/SERIAL + USERID + COLOR + ICON + TOWN + USERNAME + DATE + WINS + LOSSES + FILLER
+
+*********************************************************************************************
+Stats screen / Rankings - [ msReceiveRanking ] - [TESTED 100%]
+25 00 002E AB6348E9 00 00 4D6F7274616C204B6F6D62617400426C61636B2042656C74003639004E6F2042656C740032303000 02
+OPCODE + DBID + size + Cart ID (HEX) + userID + hiddenstats + stats struct + end_stream
+
+stats struct is defined as such. Each value is a string separated by a null byte (00) IN the EXACT order.
+Example above is for a single rank and showing the next one (upcoming one).
+
+game name  (20 char max)
+current rank (20 char max)
+current points (20 char max)
+next rank (20 char max)
+next points (20 char max) (edited)
+
+*********************************************************************************************
+Delete Ranking - [ msDeleteRanking ]   - !!! NOT TESTED, BUT SHOULD WORK !!!
+26 01
+OPCODE + DBID (DBID is the game id number in the ngp list, not the hex cart game id)
+
+*********************************************************************************************
+Get number of rankings on box [ msGetNumRankings ] - !!! NOT TESTED BUT SHOULD WORK !!!
+OPCODE (yes, that simple)
+27
+should return a short ( 0000 ) with the number of ranking entries on the box. Each game played with
+stats counts as a single entry i believe.
+
+*********************************************************************************************
+Get First ranking ID - [ msGetFirstRankingID ] - !!! NOT TESTED BUT SHOULD WORK !!!
+OPCODE
+28
+Should return DBID Of first ranking listed on box and return a short ( 0000 ) with DBID value
+
+*********************************************************************************************
+Get Next ranking ID - [ msGetNextRankingID ] - !!! NOT TESTED BUT SHOULD WORK !!!
+OPCODE + DBID
+29 01
+Should return DBID Of first ranking listed on box and return a short ( 0000 ) with DBID value
+we are assuming that server side is keeping the index into the list of this stuff the box sends.
+we start with first ranking and then i think we use that to get the ranking just after it.
+
+*********************************************************************************************
+Get Ranking DATA - [ msGetRankingData ] - !!! NOT TESTED BUT SHOULD WORK !!!
+OPCODE + DBID
+2A 01
+This should return the entire size of the rankings struct seen for msReceiveRanking
+(game name, current_rank, current_points, next rank, next points). Should just be a blob of
+strings with null bytes separating the strings themselves and each string can be a max of 20
+chars at best.  5x strings total of 20 chars in size max  with null bytes between = 105 bytes
+max i believe (quick math here)
+
+*********************************************************************************************
+Send dialog box - [msQDefDialog] - !!! NEEDS TESTING !!!
+opcode + (Total packet length+1) + DBID + minTime + maxTime + length of string + text string (null terminated)
+22 0000 00 0000 0000 00000000 [string+00]
+2 seconds = 120, 5 seconds = 300. set max time to 0 if dialog is "sticky" (stays until user input)
+*********************************************************************************************
+
+*********************************************************************************************
+DATE FORMAT FOR ADD PLAYER TO PLAYERLIST OPCODE (msAddAddressBookEntry)
+
+OVERALL FORMAT IS A LONG 00 00 00 00
+WE WANT TO SET DATE TO 9/23/17 however the xband takes the date backwards... (YEAR MONTH DAY)
+2ND BYTE OF LONG IS YEAR IN HEX (17 = 11 IN HEX)
+   Y  MD D
+00 11 00 00 = PACKET SO FAR
+MONTH BYTE FORMAT
+00 = JAN
+10 = FEB
+20 = MAR
+30 = APR
+40 = MAY
+50 = JUN
+60 = JUL
+70 = AUG
+80 = SEP
+90 = OCT
+A0 = NOV
+B0 = DEC
+   Y  MD D
+00 11 80 00 = PACKET SO FAR
+DAY = UPPER NIBBLE OF MONTH BYTE (8[0]) Is what sets the days but its in multiples of 2 ONLY
+0=0
+1=2
+2=4
+3=6
+4=8
+5=10
+6=12
+7=14
+8=16
+9=18
+A=20
+B=22
+C=24
+D=26
+E=28
+F=30
+Then to increment it by 1 we need to work with the lower nibble of the last byte [0]0
+We can only use A hex value here TO ADD 1 to the even value
+SO FOR 9/23/17 TO SHOW WE NEED TO USE THIS FORMAT
+   Y  MD D
+00 11 8B A0
+OR simply for 9/22/17 to show we use this format
+   Y  MD D
+00 11 8B 00  - NOTICE LAST BYTE IS NOTHING BECAUSE WE DONT WANT TO ADD +1
