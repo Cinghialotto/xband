@@ -9,6 +9,33 @@ The xband hardware is a 2400 baud Rockwell chipset modem with a custom chip on
 board called "Fred" which has patch vectors (10 Approximately). It worked in a
 very similar fashion to game genie in terms of patching.
 
+How did it work?
+----------------
+Basically you would dial up to a central server which would then handshake and 
+your modem would puke its guts so to speak to the server. It would grab mail, get
+player profiles, and any system patches (if there were any). It would also report to
+the server how much free space in SRAM it had. Sram was 64kb in size and held game
+patches and your profile and all your stats and custom player icons and such and news
+and mail.
+
+For matchmaking, if you chose to challenge a player or get a random match, it would
+dial the central server, and spent a minute or two downloading a 10kb or smaller game
+patch which would be used with the FRED chip to patch in its own network game code
+into the existing game on the fly and interact with the modem.
+
+The game networking was quite an impressive feat. It would send controller data back
+and fourth between consoles and also sync vblanks between machines. It would switch between
+interlaced and non interlaced video modes to slow down the faster consoles to they would
+be running in lock-stop as much as possible or at most, a few frames apart (up to about 6-8 max).
+
+However, due to latency, this device is sensitive. Copper phone lines produce stable
+latency that was much lower and stable, however today over the internet its much less-predictable and
+latency varies quite a bit. In some of the source code docs you'll find reference to about 35-40ms
+of latency being the absolute max it can handle (has to be stable). Ive tested this over voip
+many a time and this absolutely holds true that it cannot handle anything over that, otherwise
+you repeatdly trip the resync code in the game patch and it either lags out or plays
+horribly. 
+
 Xband Protocol
 --------------
 The xband network protocol is a modified early version of ADSP Appletalk.
