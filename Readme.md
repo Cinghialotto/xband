@@ -11,7 +11,7 @@ very similar fashion to game genie in terms of patching.
 
 How did it work?
 ----------------
-Basically you would dial up to a central server which would then handshake and 
+Basically you would dial up to a central server which would then handshake and
 your modem would puke its guts so to speak to the server. It would grab mail, get
 player profiles, and any system patches (if there were any). It would also report to
 the server how much free space in SRAM it had. Sram was 64kb in size and held game
@@ -34,7 +34,7 @@ latency varies quite a bit. In some of the source code docs you'll find referenc
 of latency being the absolute max it can handle (has to be stable). Ive tested this over voip
 many a time and this absolutely holds true that it cannot handle anything over that, otherwise
 you repeatdly trip the resync code in the game patch and it either lags out or plays
-horribly. 
+horribly.
 
 Xband Protocol
 --------------
@@ -59,6 +59,10 @@ length and sizing of the data isnt exactly right, you can spend a bunch of time
 waiting for the xband to timeout or crash entirely and do nothing, Its very much
 a trial and error thing in some cases. Also the snes is little endian and Sega
 is big endian format. Keep this in mind when crafting packets.
+
+See packets.txt file for samples on crafted packets that you have to attach/append
+the adsp header packet on top of and also adjust the crc value in the adsp header
+to include the full length of the payload.
 
 patching
 --------
