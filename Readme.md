@@ -46,7 +46,9 @@ to initiate the handshake.
 
 See xbsega.go (sample handshake in go) for an example of how to do this
 along with functions to see how it parses whats called the "puke" packet
-which comes after the handshake completes after initial connect.
+which comes after the handshake completes after initial connect. Sending packets
+back to the modem isnt implemented yet unfortunately but shouldnt be much of an issue
+to do so.
 
 Beyond this, most of the xband protocol once handshakes has to layer the adsp
 packet header on top of the actual payload packet you are sending. The XBAND
@@ -72,3 +74,8 @@ and nhl94/95 patches in the source provided. Some patches also have source code
 as well. For snes, there is only a binary copy of super mario kart with no source
 and same goes for a super street fighter 2 which i recovered from a japanese xband
 and dumped,tested and confirmed working between xbands for gaming.
+
+Be aware of sending game patches to the modem that contain 10 03 (dle/etx) characters
+on the sega side as it will absolutely think you are terminating a packet. Not entirely
+sure how to get around this one just yet but if you get fairly far in uploading patches to
+modem sram you'll run into this sooner or later. 
