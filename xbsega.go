@@ -160,7 +160,7 @@ PAYLOD_END[0]   = byte(crc>>8); PAYLOD_END[1] = byte(crc);                     /
 DATA_PACKET    := append(ADSP_HEADER, append(PAYLOD,PAYLOD_END...)...) // MERGE EVERYTHING TOGETHER INTO 1 PACKET
 // ----------------------------------------------------------------------------------------------
 fmt.Printf("%X\n",DATA_PACKET)
-port.Write([]byte(DATA_PACKET))
+if DEBUG == false { port.Write([]byte(DATA_PACKET)) }
 fmt.Println("\nSent Packet!\n")
 return;
 }
@@ -173,7 +173,7 @@ return;
 
 func main() {
   println("\n*************************************")
-  println("**         | XBSEGA SERVER |       **")
+  println("**         | XBSEGA SERVER |        **")
   println("*************************************\n")
 
   if DEBUG == false {
@@ -405,8 +405,9 @@ func main() {
   // ------------------------------------------
   // SEND TEST PACKET TO BOX
   // ------------------------------------------
-  //OpcodeStream := "0E0110000002" // set box to wait for call for 11000000 ticks (longword value) + 02 end stream opcode
-  //Send_Message(OpcodeStream); // send it...
+
+  OpcodeStream := []byte { 0x0E, 0x01, 0x10, 0x00, 0x00, 0x02 } // set box to wait for call for 11000000 ticks (longword value) + 02 end stream opcode
+  Send_Message(OpcodeStream); // send it...
 
   fmt.Println(PATCH_DATA);      // TEMPORARY (REMOVE ME LATER)
 
