@@ -5,7 +5,7 @@ import "log"
 import "time"
 import "bytes"
 import "strings"
-import "io/ioutil"
+//import "io/ioutil"
 import "encoding/hex"
 import "encoding/binary"
 import "github.com/tarm/serial"
@@ -173,7 +173,7 @@ return;
 
 func main() {
   println("\n*************************************")
-  println("**         | XBSEGA SERVER |         **")
+  println("**         | XBSEGA SERVER |       **")
   println("*************************************\n")
 
   if DEBUG == false {
@@ -405,9 +405,10 @@ func main() {
   // ------------------------------------------
   // SEND TEST PACKET TO BOX
   // ------------------------------------------
+  //OpcodeStream := "0E0110000002" // set box to wait for call for 11000000 ticks (longword value) + 02 end stream opcode
+  //Send_Message(OpcodeStream); // send it...
 
-  OpcodeStream := "0E0110000002" // set box to wait for call for 11000000 ticks (longword value) + 02 end stream opcode
-  Send_Message(OpcodeStream); // send it...
+  fmt.Println(PATCH_DATA);      // TEMPORARY (REMOVE ME LATER)
 
   if DEBUG == false {
   println("----------- DISCONNECTED ------------\n\a")
